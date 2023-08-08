@@ -1,7 +1,16 @@
 from django.db import models
+from django.contrib.auth.models import (
+    AbstractBaseUser, PermissionsMixin
+)
 
 # Create your models here.
-class User(models.Model):
-    email = models.CharField(max_length=100)
-    password = models.CharField(max_length=100)
+class User(AbstractBaseUser, PermissionsMixin):
+    email = models.CharField(
+        verbose_name=('Email address'),
+        max_length=255,
+        unique=True,
+    )
+
+    USERNAME_FIELD = 'email'
+
     
