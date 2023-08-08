@@ -11,7 +11,7 @@ from .serializers import UserSerializer
 회원가입 함수
 email과 password만 받는다.
 
-email의 경우 @가 들어갔는지 여부만, 
+email의 경우 @가 들어갔는지 여부만 확인
 password의 경우 8자리 이상인지 여부만 확인
 두 경우 모두 status = 400 Bad request
 
@@ -50,4 +50,9 @@ def sign_up(request):
         
         if serializer.is_valid(raise_exception=True):
             serializer.save()
-            return Response(status=status.HTTP_201_CREATED)
+            context = {
+                'message' : '회원가입 되었습니다.'
+            }
+            return JsonResponse(context,status=status.HTTP_201_CREATED,json_dumps_params={'ensure_ascii': False})
+        
+
