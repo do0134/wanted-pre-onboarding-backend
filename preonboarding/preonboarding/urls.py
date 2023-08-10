@@ -27,4 +27,5 @@ urlpatterns = [
     path('jwt-token-auth/', TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path('jwt-token-auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('jwt-token-auth/verify/', TokenVerifyView.as_view(), name='token_verify'),
+    path('articles/', include('articles.urls'))
 ]
