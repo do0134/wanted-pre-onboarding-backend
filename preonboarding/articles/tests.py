@@ -12,16 +12,20 @@ User = get_user_model()
 class ArticleTest(TestCase):
     # 테스트 용 유저 생성
     def create_user(self):
-        data = {"email" : "dodo@naver.com", "password" : "12345678"}
+        data = {"email" : "wantedwant@naver.com", "password" : "12345678"}
         serializer = UserSerializer(data=data)
 
-        if serializer.is_valid(raise_exception=True):
+        if serializer.is_valid():
             user = serializer.save()
+            return user
+        else:
+            return 1
+        
 
     # 테스트용 게시글 생성 함수
-    def article_create(self):
+    def article_create(self, user_pk):
         # create_user로 만들어진 유저를 받은 다음,
-        user = get_object_or_404(User, id=1)
+        user = get_object_or_404(User, pk=user_pk)
         # 테스트 데이터를 넣고
         data = {
             "title" : "1234",
@@ -38,11 +42,21 @@ class ArticleTest(TestCase):
             article = Article.objects.get(pk=new_data.pk)
         except : 
             raise AssertionError
+        
+    
+    def article_valid(self, data):
+        if not data["title"]:
+            return "No Title"
+        elif not data["content"]:
+            return "No Content"
+        return "Valid"
 
     # 게시글 리스트 페이지네이션 테스트
     def test_article_list(self):
         # 유저 생성
-        self.create_user()
+        test_user = self.create_user()
+        user_pk = test_user.pk
+
         # 게시글을 총 몇 번 생성할지
         num = 31
         # 한 페이지에 게시글을 몇 개 보여줄지
@@ -50,7 +64,7 @@ class ArticleTest(TestCase):
         # num만큼 게시글 생성
         try: 
             for _ in range(num):
-                self.article_create()
+                self.article_create(user_pk)
         except:
             raise AssertionError
         
@@ -70,10 +84,38 @@ class ArticleTest(TestCase):
             # 마지막 페이지만 예외처리 해준다.
             else:
                 self.assertTrue(len(serializer.data) == num%article_cnt)
-        
-        
-        
 
-        
-        
+    
+    def test_article_create_success(self):
+        test_user = self.create_user()
+        user = get_object_or_404(User, pk=test_user.pk)
+        data = {
+            "title" : "안녕하세요!",
+            "content" : "좋은 아침입니다!"
+        }
+        serializer = ArticleSerializer(data=data)
+        if serializer.is_valid(raise_exception=True):
+            article = serializer.save(user=user)
+            self.assertEquals(article.title == data["title"], article.content == data["content"])
+
+    def test_article_title_failed(self):
+
+        title_data = {
+            "title" : "             ",
+            "content": "1234 ",
+        }
+
+        title_data["title"] = title_data["title"].strip()
+
+        msg = self.article_valid(title_data)
+        self.assertEqual(msg, "No Title")
+
+    def test_article_content_failed(self):
+        content_data = {
+            "title": "1234",
+            "content": "                               "
+        }
+        content_data["content"] = content_data["content"].strip()
+        msg = self.article_valid(content_data)
+        self.assertEqual(msg, "No Content")
        
