@@ -4,9 +4,12 @@ from rest_framework.response import Response
 from argon2 import PasswordHasher
 from django.http import JsonResponse
 from .serializers import UserSerializer
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
+import jwt
+from django.contrib.auth import authenticate
+from preonboarding.settings import SECRET_KEY
 
 User = get_user_model()
 # Create your views here.
@@ -139,10 +142,13 @@ def login(request):
         refresh_token = str(token)
         access_token = str(token.access_token)
         context = {
-            "refresh_token" : refresh_token,
-            "access_token" : access_token,
+            "refresh" : refresh_token,
+            "access" : access_token,
         }
-        return Response(context,status=status.HTTP_200_OK)
+        response = Response(context,status=status.HTTP_200_OK)
+        response.set_cookie("access", access_token)
+        response.set_cookie("refresh", refresh_token)
+        return response
     else:
         # 아니라면 400을 반환
         context = {
@@ -151,3 +157,19 @@ def login(request):
         
         return JsonResponse(context,status=status.HTTP_400_BAD_REQUEST,json_dumps_params={'ensure_ascii': False})
 
+def jwt_decode(cookies_dict):
+    try:
+        access_token = cookies_dict["access"]
+        payload = jwt.decode(access_token, SECRET_KEY, algorithms=['HS256'])
+        pk = payload.get('user_id')
+        return pk
+    except (jwt.exceptions.ExpiredSignatureError):
+        refresh_token = cookies_dict["refresh"]
+        
+        data = {
+            "refresh": refresh_token,
+        }
+
+        serializer = TokenRefreshSerializer(data=data)
+        if serializer.is_valid(raise_exception=True):
+            print(serializer.data)
