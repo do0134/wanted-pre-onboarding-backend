@@ -74,4 +74,46 @@ def article_list_or_create(request):
 
 @api_view(['GET', 'PUT', 'DELETE'])
 def article_detail_or_update_or_delete(request, article_pk):
-    pass
+    article = get_object_or_404(Article, pk=article_pk)
+    
+    def authenticate_user():
+        user_pk = jwt_decode(request.COOKIES)
+        user = get_object_or_404(User, pk=user_pk)
+        if not user.is_authenticated:
+            return 0
+        return user_pk
+
+    def check_creator(user_pk):
+        user = get_object_or_404(User, pk=user_pk)
+        return user == article.user
+
+    def article_detail():
+        serialzier = ArticleSerializer(article)
+        return Response(serialzier.data, status=status.HTTP_200_OK)
+
+    def update_article():
+        user_pk = authenticate_user()
+        user = get_object_or_404(User, pk=user_pk)
+        if check_creator(user_pk):
+            serializer = ArticleSerializer(instance=article, data=request.data)
+            if serializer.is_valid(raise_exception=True):
+                serializer.save(user=user)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+    def delete_article():
+        user_pk = authenticate_user()
+        if check_creator(user_pk):
+            article.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    if request.method == 'GET':
+        return article_detail()
+    elif request.method == 'PUT':
+        return update_article()
+    elif request.method == 'DELETE':
+        return delete_article()
