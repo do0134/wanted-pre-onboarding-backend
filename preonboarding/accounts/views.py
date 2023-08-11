@@ -181,3 +181,8 @@ def jwt_decode(cookies_dict):
         serializer = TokenRefreshSerializer(data=data)
         if serializer.is_valid(raise_exception=True):
             print(serializer.data)
+        else:
+            context : {
+                "message" : "token이 만료되었습니다."
+            }
+            return Response(context)
