@@ -8,7 +8,6 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, Toke
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 import jwt
-from django.contrib.auth import authenticate
 from preonboarding.settings import SECRET_KEY
 
 User = get_user_model()
