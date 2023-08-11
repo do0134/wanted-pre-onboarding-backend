@@ -8,7 +8,6 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, Toke
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 import jwt
-from django.contrib.auth import authenticate
 from preonboarding.settings import SECRET_KEY
 
 User = get_user_model()
@@ -146,6 +145,7 @@ def login(request):
             "access" : access_token,
         }
         response = Response(context,status=status.HTTP_200_OK)
+        # access_token과 refresh_token을 쿠키에 저장
         response.set_cookie("access", access_token)
         response.set_cookie("refresh", refresh_token)
         return response
@@ -157,6 +157,14 @@ def login(request):
         
         return JsonResponse(context,status=status.HTTP_400_BAD_REQUEST,json_dumps_params={'ensure_ascii': False})
 
+"""
+jwt를 디코딩하여 User 데이터를 가져오는 함수
+reqeust.COOKIES dict를 arg로 받는다.
+
+jwt를 디코딩하여 user_pk를 return
+
+refresh token 구현은 아직
+"""
 def jwt_decode(cookies_dict):
     try:
         access_token = cookies_dict["access"]
@@ -173,3 +181,8 @@ def jwt_decode(cookies_dict):
         serializer = TokenRefreshSerializer(data=data)
         if serializer.is_valid(raise_exception=True):
             print(serializer.data)
+        else:
+            context : {
+                "message" : "token이 만료되었습니다."
+            }
+            return Response(context)

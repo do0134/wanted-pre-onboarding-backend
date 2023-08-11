@@ -3,7 +3,7 @@ from .models import Article
 from django.core.paginator import Paginator
 from .serializers import ArticleSerializer
 from django.contrib.auth import get_user_model
-from accounts.serializers import UserSerializer, UserArticleSerializer
+from accounts.serializers import UserSerializer
 from django.shortcuts import get_object_or_404
 # Create your tests here.
 
