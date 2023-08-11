@@ -93,10 +93,11 @@ def article_detail_or_update_or_delete(request, article_pk):
 
     def update_article():
         user_pk = authenticate_user()
+        user = get_object_or_404(User, pk=user_pk)
         if check_creator(user_pk):
-            serializer = ArticleSerializer(instance=Article, data=request.data)
+            serializer = ArticleSerializer(instance=article, data=request.data)
             if serializer.is_valid(raise_exception=True):
-                serializer.save()
+                serializer.save(user=user)
                 return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
