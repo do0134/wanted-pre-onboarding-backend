@@ -18,9 +18,10 @@
 3. 가상환경 생성한 디렉토리에서 가상환경 activate
    - source venv/Scripts/activate
   <br>
+
 4. pip install -r requirement.txt 명령어로 가상환경에 라이브러리 설치
    - wanted-pre-onboarding-backend 디렉토리 안에 있음
-    <br>
+  <br>
     
 5. wanted-pre-onboarding-backend/preonboarding/preonboarding/settings.py에서 DATABASES를 수정
    - ![Alt text](image-1.png)
@@ -32,8 +33,10 @@
 6. python manage.py makemigrations 후 python manage.py migrate 진행하여 migrate 진행 
     - wanted-pre-onboarding-backend/preonboarding에서 실행
   <br>
+  
 7. python manage.py runserver 로 서버 실행
-   <br>
+  <br>
+
 8. postman 등 api 테스트 툴을 통해 엔드 포인트 호출
 <br>
 
