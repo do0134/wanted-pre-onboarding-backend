@@ -95,11 +95,14 @@ def sign_up(request):
             access_token = str(token.access_token)
             context = {
                 'message' : '회원가입 되었습니다.',
-                'refresh_token' : refresh_token,
-                'access_token' : access_token,
+                'refresh' : refresh_token,
+                'access' : access_token,
             }
+            response = Response(context,status=status.HTTP_201_CREATED)
+            response.set_cookie("access", access_token)
+            response.set_cookie("refresh", refresh_token)
 
-            return JsonResponse(context,status=status.HTTP_201_CREATED,json_dumps_params={'ensure_ascii': False})
+            return response
         
 """
 로그인 함수

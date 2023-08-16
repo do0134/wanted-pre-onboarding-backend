@@ -38,7 +38,12 @@ def article_list_or_create(request):
     # page가 request body에 있다면 받고 없다면 디폴트 페이지 1
     def article_list():
         articles = Article.objects.all().order_by('-pk')
-        page = int(request.GET.get('page') or 1)
+        
+        if 'page' in request.data.keys():
+            page = request.data['page']
+        else:
+            page = 1
+
         paginator = Paginator(articles, 5)
         article_list = paginator.get_page(page)
         serializer = ArticleSerializer(article_list,many=True)
@@ -76,7 +81,7 @@ def article_list_or_create(request):
             serializer = ArticleSerializer(data=data)
             if serializer.is_valid(raise_exception=True):
                 serializer.save(user=user)
-                return Response(status=status.HTTP_201_CREATED)
+                return Response(serializer.data,status=status.HTTP_201_CREATED)
             
             return Response(status=status.HTTP_400_BAD_REQUEST)
     
@@ -129,7 +134,22 @@ def article_detail_or_update_or_delete(request, article_pk):
     def update_article():
         user_pk = authenticate_user()
         user = get_object_or_404(User, pk=user_pk)
+        
+        
         if check_creator(user_pk):
+            title = request.data['title']
+            content = request.data['content']
+            if not article_title_valid(title):
+                context = {
+                    'message' : '제목을 입력해주세요'
+                }
+                return Response(context, status=status.HTTP_400_BAD_REQUEST)
+            elif not article_content_valid(content):
+                context = {
+                    'message' : '내용을 입력해주세요'
+                }
+                return Response(context, status=status.HTTP_400_BAD_REQUEST)
+            
             serializer = ArticleSerializer(instance=article, data=request.data)
             if serializer.is_valid(raise_exception=True):
                 serializer.save(user=user)
