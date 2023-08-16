@@ -18,7 +18,7 @@
 3. 가상환경 생성한 디렉토리에서 가상환경 activate
    - source venv/Scripts/activate
   <br>
-  
+
 4. pip install -r requirement.txt 명령어로 가상환경에 라이브러리 설치
    - wanted-pre-onboarding-backend 디렉토리 안에 있음
   <br>
@@ -33,6 +33,7 @@
 6. python manage.py makemigrations 후 python manage.py migrate 진행하여 migrate 진행 
     - wanted-pre-onboarding-backend/preonboarding에서 실행
   <br>
+  
 7. python manage.py runserver 로 서버 실행
   <br>
 
